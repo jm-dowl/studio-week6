@@ -3,23 +3,21 @@
 <head>
 	<title>Mali Health Sites Map</title>
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+	<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
 	<style>
-		body {
-			margin: 0px;
-		}
+		body {margin: 0px;}
 
 		h1 {
 			float: left;
 			padding-left: 10px;
 			font-family: Helvetica, Arial, Verdana;
-      font-size: 42px
-    }
-
-    p {
-      font-family: Helvetica, Arial, Verdana;
-      font-size: 18px;
+			font-size: 42px
+		}
+		p {
+			font-family: Helvetica, Arial, Verdana;
+			font-size: 18px;
 			padding-left: 10px;
-    }
+		}
 
 		#wrapper {
 			width: 800px;
@@ -29,6 +27,33 @@
 			width: 780px;
 			margin: 0 auto;
 			height: 500px;
+		}
+		.legend {
+				line-height: 18px;
+				color: #333333;
+				font-family: Helvetica, sans-serif;
+				padding: 6px 8px;
+				background: white;
+				background: rgba(255,255,255,0.8);
+				box-shadow: 0 0 15px rgba(0,0,0,0.2);
+				border-radius: 5px;
+			}
+		.legend i {
+			width: 18px;
+			height: 18px;
+			float: left;
+			margin-right: 8px;
+			opacity: 0.7;
+		}
+		.legend img {
+			width: 18px;
+			height: 18px;
+			float: left;
+		}
+		.legend p {
+			font-size: 12px;
+			line-height: 18px;
+			margin: 0;
 		}
 
 		#controls {
@@ -58,35 +83,145 @@
 		</div>
 		<div id="map"></div>
 		<div id="controls">
-			<!-- Here is the code for a button if we were going to add them.
-			<button class="button" id="toggleButton">BUTTON!</button>
-			-->
-			<div id="narrative"><p>You can put narrative text or explanation here.</p></div>
+			<div id="narrative"><p>
+			I think there are several improvements that could be made to this map.
+			1.) I think this map would be improved by choosing a less-busy basemap.
+			If I could, I would provbably reduce the density of labels and make the colors more muted because the
+			basemap is kind a bit distracting right now and draws the eye away from the data displayed.
+			2.) I would probably create data clusters, like we did in Studio 4, where zooming out from the map condenses
+			the points into groups. By doing this, I would reduce the number of points initially visible making the map
+			more pleasing to look at and less overwhelming.
+		 	3.) For this lab, I quickly downloaded some icons for each group. But, I think I could increase the clarity
+			of this map by choosing icons that are more distinct from each other and by potentially changing color of
+			the icons. I think this would help the user navigate the map by making he difference between each health site
+			more obvious. Because they are all black and relatively similar shapes and styles, it is honestly a
+			bit difficult to tell the difference.
+			4.) In a similar vein, I would like to increase te size of the icons in the legend so they are easier to see. </p></div>
 		</div>
 	</div>
 	<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
 	<script>
     	// Create Map Object
-    	var map = L.map('map',{ center: [39.7644,-104.8548], zoom: 9 });
+    	var map = L.map('map',{ center: [17.118433264460654, -5.1452510706734085], zoom: 5 });
 
     	// Add Tile Layer
-		L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
-			attribution: 'Tiles by <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a> | Data by <a href="url here">Who???</a>',
-			maxZoom: 17,
-			minZoom: 9
-		}).addTo(map);
+			L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+				attribution: '&copy; OpenStreetMap France | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+				maxZoom: 17,
+				minZoom: 0
+			}).addTo(map);
 
-		// Add GeoJSON Data
+			//Null variable that will hold Healthsites Data
+			var Healthsites = null;
 
-		// Create Custom Icons Here
+			// Add GeoJSON Data to the map when it loads
+			$.getJSON("data/Mali_healthsites.geojson",function(data){
+			    // set Healthsites to the dataset and add the Healthsites GeoJSON layer to the map
+			    Healthsites = L.geoJson(data,{
+			      onEachFeature: function (feature, layer) {
+			        layer.bindPopup('Type: '+feature.properties.amenity+'<br>Name: '+feature.properties.name+'');
+			      }, pointToLayer: function (feature, latlng) {
+			        if (feature.properties.amenity == "clinic"){ // Replacing previous marker with conditionals
+			          var marker = L.marker(latlng,{icon: clinicIcon});
+			        } else if (feature.properties.amenity == "dentist") {
+			          var marker = L.marker(latlng,{icon: dentistIcon});
+			        } else if (feature.properties.amenity == "doctors") {
+			          var marker = L.marker(latlng,{icon: doctorsIcon});
+			        } else if (feature.properties.amenity == "hospital") {
+			          var marker = L.marker(latlng,{icon: hospitalIcon});
+			        } else {
+			          var marker = L.marker(latlng,{icon: pharmacyIcon});
+			        };
+			      return marker;
+			      }
+			    }).addTo(map);
+			});
 
-		// Add Admin unit Polygons
+			// Create Custom Icons Here
+			var healthIcon = L.Icon.extend({
+				options:{
+					iconURL: './icons/health_facility.svg',
+					iconSize: [24,24],
+					iconAnchor: [12,12],
+					popupAnchor: [0,-6]
+				}
+			});
 
-		// Create Leaflet Control Object for Legend
+			// Create specific icons for amenity types
+			var clinicIcon = new healthIcon({iconUrl: './icons/clinic.svg'});
+			var dentistIcon = new healthIcon({iconUrl: './icons/dentist.svg'});
+			var doctorsIcon = new healthIcon({iconUrl: './icons/doctor.svg'});
+			var hospitalIcon = new healthIcon({iconUrl: './icons/health_facility.svg'});
+			var pharmacyIcon = new healthIcon({iconUrl: './icons/medicine.svg'});
 
-		// Add Scale Bar to Map
+			// Add Admin unit Polygons
+			var adminLayer = null;
 
+			$.getJSON("data/Mali_Prevalence_Global_Acute_Malnutrition.geojson", function(data){
+				adminLayer = L.geoJson(data, {style: style}).addTo(map);
+			});
+
+			// Set function for color ramp w/ colors from Colorbrewer
+			function setColor(Wast_Text){
+				return Wast_Text == 'High' ? '#e6550d' :
+				Wast_Text == 'Medium' ? '#fdae6b' :
+				Wast_Text == 'Low' ? '#fee6ce' :
+				'#d4cfcd';
+			};
+
+			// Set style function that sets fill color property equal to FI_Class
+			function style(feature) {
+				return {
+					fillColor: setColor(feature.properties.Wast_Text),
+					fillOpacity: 0.7,
+					weight: 0,
+					opacity: 0,
+					color: '#ffffff',
+					dashArray: '0'
+				};
+			}
+
+			// Create Leaflet Control Object for Legend
+			var legend = L.control({
+				position: 'topright'
+			});
+
+			// Function that runs when legend is addedd to Map
+			legend.onAdd = function(map) {
+
+				//Create Div element and populate it with html
+				var div = L.DomUtil.create('div', 'legend');
+				div.innerHTML += '<b>Prevalence of wasting </b><br/>';
+				div.innerHTML += '<b>in children < 5 yrs. old,</b><br/>';
+				div.innerHTML += '<b>by region</b><br/>';
+				div.innerHTML += '<i style="background: #e6550d"></i><p>High</p>';
+				div.innerHTML += '<i style="background: #fdae6b"></i><p>Medium</p>';
+				div.innerHTML += '<i style="background: #fee6ce"></i><p>Low</p>';
+				div.innerHTML += '<i style="background: #d4cfcd"></i><p>Uncategorized</p>';
+				div.innerHTML += '<hr><img src="icons/clinic.svg"><p>Clinic</p>';
+				div.innerHTML += '<img src="icons/dentist.svg"><p>Dentist</p>';
+				div.innerHTML += '<img src="icons/doctor.svg"><p>Doctor</p>';
+				div.innerHTML += '<img src="icons/health_facility.svg"><p>Hospital</p>';
+				div.innerHTML += '<img src="icons/medicine.svg"><p>Pharmacy</p>';
+				// Return the Legend div containing the HTML content
+				return div;
+			};
+
+			// Add legend to map
+			legend.addTo(map);
+
+			// Add Scale Bar to Map
+			L.control.scale({position: 'bottomleft'}).addTo(map);
+
+			//Adding the search Geocoder
+			L.Control.geocoder({
+				position: "topleft",
+				placeholder: "Enter place name",
+				errorMessage: "No place found.",
+			}).addTo(map);
 
 	</script>
 </body>
