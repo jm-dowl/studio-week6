@@ -84,19 +84,7 @@
 		<div id="map"></div>
 		<div id="controls">
 			<div id="narrative"><p>
-			I think there are several improvements that could be made to this map.
-			1.) I think this map would be improved by choosing a less-busy basemap.
-			If I could, I would provbably reduce the density of labels and make the colors more muted because the
-			basemap is kind a bit distracting right now and draws the eye away from the data displayed.
-			2.) I would probably create data clusters, like we did in Studio 4, where zooming out from the map condenses
-			the points into groups. By doing this, I would reduce the number of points initially visible making the map
-			more pleasing to look at and less overwhelming.
-		 	3.) For this lab, I quickly downloaded some icons for each group. But, I think I could increase the clarity
-			of this map by choosing icons that are more distinct from each other and by potentially changing color of
-			the icons. I think this would help the user navigate the map by making he difference between each health site
-			more obvious. Because they are all black and relatively similar shapes and styles, it is honestly a
-			bit difficult to tell the difference.
-			4.) In a similar vein, I would like to increase te size of the icons in the legend so they are easier to see. </p></div>
+			map improvements?  </p></div>
 		</div>
 	</div>
 	<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
@@ -118,7 +106,7 @@
 			var Healthsites = null;
 
 			// Add GeoJSON Data to the map when it loads
-			$.getJSON("data/Mali_healthsites.geojson",function(data){
+	
 			    // set Healthsites to the dataset and add the Healthsites GeoJSON layer to the map
 			    Healthsites = L.geoJson(data,{
 			      onEachFeature: function (feature, layer) {
